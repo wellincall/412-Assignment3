@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'VPN_UI.ui'
 #
-# Created: Tue Sep 30 15:17:00 2014
+# Created: Tue Sep 30 15:43:30 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,18 +52,18 @@ class Ui_MainWindow(object):
         spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem3)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.progressBar = QtGui.QProgressBar(self.layoutWidget)
-        self.progressBar.setProperty("value", 0)
-        self.progressBar.setObjectName("progressBar")
-        self.verticalLayout.addWidget(self.progressBar)
+        self.con_bar = QtGui.QProgressBar(self.layoutWidget)
+        self.con_bar.setProperty("value", 0)
+        self.con_bar.setObjectName("con_bar")
+        self.verticalLayout.addWidget(self.con_bar)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.pushButton = QtGui.QPushButton(self.layoutWidget)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
-        self.pushButton_2 = QtGui.QPushButton(self.layoutWidget)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.horizontalLayout.addWidget(self.pushButton_2)
+        self.start_btn = QtGui.QPushButton(self.layoutWidget)
+        self.start_btn.setObjectName("start_btn")
+        self.horizontalLayout.addWidget(self.start_btn)
+        self.stop_btn = QtGui.QPushButton(self.layoutWidget)
+        self.stop_btn.setObjectName("stop_btn")
+        self.horizontalLayout.addWidget(self.stop_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
@@ -77,6 +77,6 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("MainWindow", "IP", None, QtGui.QApplication.UnicodeUTF8))
         self.tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Connection Progress", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("MainWindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_2.setText(QtGui.QApplication.translate("MainWindow", "Stop", None, QtGui.QApplication.UnicodeUTF8))
+        self.start_btn.setText(QtGui.QApplication.translate("MainWindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
+        self.stop_btn.setText(QtGui.QApplication.translate("MainWindow", "Stop", None, QtGui.QApplication.UnicodeUTF8))
 

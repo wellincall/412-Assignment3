@@ -7,9 +7,18 @@ import sys
 #main windown class, where we load the desgin
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
+        #set up the main window to be the one from VPN_UI.ui
         QtGui.QMainWindow.__init__(self)
         self.ui =  Ui_MainWindow()
         self.ui.setupUi(self)
+
+    ### Signals
+        self.ui.start_btn.clicked.connect(self.start_vpn)
+
+    ### Slots
+    def start_vpn(self):
+        print "yo"
+
 
 #script main function
 if __name__ == '__main__':
