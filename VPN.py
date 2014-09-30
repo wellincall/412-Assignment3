@@ -3,6 +3,7 @@ from PySide import QtCore, QtGui
 #imports VPN ui class converted with pyside-uic
 from VPN_UI import Ui_MainWindow
 import sys
+import socket
 
 #main windown class, where we load the desgin
 class MainWindow(QtGui.QMainWindow):
@@ -12,12 +13,29 @@ class MainWindow(QtGui.QMainWindow):
         self.ui =  Ui_MainWindow()
         self.ui.setupUi(self)
 
+        #radio buttons
+        self.client_mode = self.ui.client
+        self.server_mode = self.ui.server
+
     ### Signals
         self.ui.start_btn.clicked.connect(self.start_vpn)
 
     ### Slots
     def start_vpn(self):
-        print "yo"
+        """
+        Checks the mode that is selected and than start an TcP server or waits for a connection
+        """
+
+        #http://www.binarytides.com/python-socket-server-code-example/ sample codes of TCP
+        if self.client_mode.isChecked():
+            #connects to the server
+            print "Client mode started"
+        elif self.server_mode.isChecked():
+            #starts a  server and listen
+            print "Server mode started"
+
+
+
 
 
 #script main function
