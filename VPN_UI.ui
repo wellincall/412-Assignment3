@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>576</width>
+    <width>577</width>
     <height>573</height>
    </rect>
   </property>
@@ -16,13 +16,13 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>11</x>
      <y>11</y>
-     <width>571</width>
-     <height>555</height>
+     <width>563</width>
+     <height>565</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
@@ -61,43 +61,68 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Cllient Mode </string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Cllient Mode </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="client">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QRadioButton" name="client">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Server Mode</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="server">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Server Mode</string>
+             <string>Port</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="server">
-            <property name="text">
-             <string/>
+           <widget class="QSpinBox" name="port_box">
+            <property name="maximum">
+             <number>60000</number>
+            </property>
+            <property name="value">
+             <number>8000</number>
             </property>
            </widget>
           </item>
@@ -106,50 +131,90 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Port</string>
+           <string>Shared Secret Value</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="port_box">
-          <property name="maximum">
-           <number>60000</number>
+         <widget class="QTextEdit" name="shared_text">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>20</height>
+           </size>
           </property>
-          <property name="value">
-           <number>8000</number>
+          <property name="maximumSize">
+           <size>
+            <width>469</width>
+            <height>23</height>
+           </size>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="secret_btn">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>18</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Set Secret</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Sent Data</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="sent_text">
-      <property name="minimumSize">
-       <size>
-        <width>559</width>
-        <height>157</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>559</width>
-        <height>157</height>
-       </size>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Sent Data</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="sent_text">
+        <property name="minimumSize">
+         <size>
+          <width>559</width>
+          <height>157</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>559</width>
+          <height>157</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -176,27 +241,31 @@
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label_7">
-      <property name="text">
-       <string>Received Data</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="received_text">
-      <property name="minimumSize">
-       <size>
-        <width>559</width>
-        <height>157</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>559</width>
-        <height>157</height>
-       </size>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Received Data</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="received_text">
+        <property name="minimumSize">
+         <size>
+          <width>559</width>
+          <height>157</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>559</width>
+          <height>157</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_7">
