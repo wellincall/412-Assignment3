@@ -5,7 +5,9 @@ from Crypto import Random
 from socket import *
 import thread
 import time
+import math
 import binascii
+import random
 
 SIZEOF_UINT16 = 2
 
@@ -25,6 +27,8 @@ class Server(QtNetwork.QTcpServer):
         #initializes server info
         self.name = "Bob"
         self.key = "1234567891234567"#key
+
+        self.msg = ""
 
         #initializes client info
         self.thread = Thread(self, self.key)
@@ -47,6 +51,18 @@ class Thread(QtCore.QThread):
         self.session_key = None
         self.session_started = False
 
+        #write flag
+        self.w_flag = False
+        self.msg_to_write = ""
+
+        #read flag
+        self.r_flag = False
+        self.read_msg = ""
+
+        #session key variables
+        self.g = 4
+        self.b = 0
+        self.p = 32
 
     def run(self):
         host = 'localhost'
@@ -68,40 +84,59 @@ class Thread(QtCore.QThread):
 
         while 1:
             if self.session_started is False:
-                #Step 1: Receive authentication request
-                #Receive R1 , "Alice"
-                data = clientsocket.recv(1024)
+                try:
+                    #Step 1: Receive authentication request
+                    #Receive R1 , "Alice"
+                    data = clientsocket.recv(1024)
 
-                #Step 2: Send challenge
-                # Send R2 + [E("Bob" , R1 , k)]
-                obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
-                r1 = data[:data.find(" , ")]
-                data = self.parent.name + " , " + r1 + " , "+self.parent.key
-                while len(data) % 16 != 0:
-                    data += " "
-                ciphertext = obj.encrypt(data)
+                    #Step 2: Send challenge
+                    # Send R2 + [E("Bob" , R1 , g^b mod p , k)]
+                    obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
+                    r1 = data[:data.find(" , ")]
+                    self.b = random.randint(0, 4)
+                    mod = math.pow(self.g, self.b) % self.p
+                    data = self.parent.name + " , " + r1+ " , " + str(mod) + " , " +self.parent.key
+                    while len(data) % 16 != 0:
+                        data += " "
+                    ciphertext = obj.encrypt(data)
 
-                #create r2
-                rndfile = Random.new()
-                r2 = str(rndfile.read(9))
+                    #create r2
+                    rndfile = Random.new()
+                    r2 = str(rndfile.read(9))
 
-                #create msg R2 + [E("Bob" , R1 , k)]
-                msg = r2 + "[" + binascii.b2a_hex(ciphertext) + "]"
-                clientsocket.send(msg)
-                print "Challenge sent to client"
+                    #create msg R2 + [E("Bob" , R1 , g^b mod p , k)]
+                    msg = r2 + "[" + binascii.b2a_hex(ciphertext) + "]"
+                    clientsocket.send(msg)
+                    print "Challenge sent to client"
 
-                #Step 3: Receive challenge response
-                # Receive ["Alice" + R2, k]
-                data = clientsocket.recv(1024)
-                print "Challenge response received"
-                obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
-                decrypt_challenge = obj.decrypt(binascii.a2b_hex(data[data.find("[")+1:data.find("]")])).split(" , ")
-                r2_received = decrypt_challenge[1]
+                    #Step 3: Receive challenge response
+                    # Receive ["Alice" , R2 , g^a mod p , k]
+                    data = clientsocket.recv(1024)
+                    print "Challenge response received"
+                    obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
+                    decrypt_challenge = obj.decrypt(binascii.a2b_hex(data[data.find("[")+1:data.find("]")])).split(" , ")
+                    r2_received = decrypt_challenge[1]
+                    mod_received = decrypt_challenge[2]
 
-                if r2_received == r2:
-                    print "R2 checked :", r2
+                    #checks if the random variable r2 received is the same as the sent
+                    if r2_received == r2:
+                        print "R2 checked :", r2
 
-                #VPN established with success
-                self.session_started = True
+                    #generate session_key
+                    self.session_key = math.pow(float(mod_received), self.b) % self.p
 
+                    #VPN established with success
+                    self.session_started = True
+
+                    print "VPN established, session key: ", self.session_key
+                except:
+                    print "VPN not established"
+            else:
+                if self.w_flag is True:
+                    clientsocket.send(self.msg_to_write)
+                    self.w_flag = False
+                elif self.r_flag is True:
+                    self.read_msg = clientsocket.recv(1024)
+                    self.r_flag = False
+                    self.parent.msg = self.read_msg
         clientsocket.close()
