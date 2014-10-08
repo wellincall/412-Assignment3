@@ -4,7 +4,11 @@ from PySide import QtCore, QtGui, QtNetwork
 from VPN_UI import Ui_MainWindow
 from TCP_Server import Server
 from TCP_Client import Client
+from Crypto.Cipher import AES
+from Crypto import Random
+import time
 import sys
+import binascii
 SIZEOF_UINT16 = 2
 
 #TCP functions at:
@@ -24,6 +28,8 @@ class MainWindow(QtGui.QMainWindow):
         #initialization of TCP related variables
         self.tcpServer = None
         self.tcpSocket = None
+
+        self.first_time = True
 
         #secret key variable
         self.secret_key = ""
@@ -55,6 +61,13 @@ class MainWindow(QtGui.QMainWindow):
         #event triggered when the secret key is set
         self.ui.secret_btn.clicked.connect(self.set_secret)
 
+        # self.ui.aut_btn.clicked.connect(self.authenticate)
+        #
+        # self.timer = QtCore.QTimer(self)
+        # self.timer.timeout.connect(self.step1)
+        # self.timer2 = QtCore.QTimer(self)
+        # self.timer2.timeout.connect(self.step2)
+
     ### Slots
     def start_vpn(self):
         """
@@ -69,11 +82,15 @@ class MainWindow(QtGui.QMainWindow):
             #connects to the server
             print "Client mode started"
             #self.TCP_client()
-            self.tcpSocket = Client("Localhost", self.port)
+            self.tcpSocket = Client("Localhost", self.port, self.secret_key)
+
         elif self.server_mode.isChecked():
             #starts a  server and listen to clients
             print "Server mode started"
-            self.tcpServer = Server(self.port)
+            self.tcpServer = Server(self.port, self.secret_key)
+
+        # self.timer.start(1)
+
 
     def stop_vpn(self):
         """
@@ -127,29 +144,12 @@ class MainWindow(QtGui.QMainWindow):
             self.tcpSocket.read_from_server()
             self.ui.received_text.setText(self.tcpSocket.textFromServer)
 
-
-
     def set_secret(self):
         """
         Set the value of the 'Shared secret Value'
         """
 
         self.secret_key = self.ui.shared_text.toPlainText()
-        print self.secret_key
-
-    def authenticate(self):
-        """
-        authenticate the message to see if we are receiving the data from the correct host
-        """
-
-        #Receive R1 + Alice
-
-
-        #Send Challenge
-
-
-        #Receive Challenge response
-        pass
 
 
 #script main function

@@ -1,91 +1,107 @@
 #import basic pyside Desgin functions
 from PySide import QtCore, QtGui, QtNetwork
+from Crypto.Cipher import AES
+from Crypto import Random
+from socket import *
+import thread
+import time
+import binascii
+
 SIZEOF_UINT16 = 2
+
 
 class Server(QtNetwork.QTcpServer):
     """
     Starts a TCP server at the port passed by the user
     """
 
-    def __init__(self, port):
+    def __init__(self, port, key):
         #set up the main window to be the one from VPN_UI.ui
         QtNetwork.QTcpServer.__init__(self)
+
+        #initializes TCP required info
         self.port = port
-        self.thread = None
-        #initializates the message to be send with a string written Ack
-        self.msg_to_send = QtGui.QLineEdit("Ack")
-        self.request = None
-        self.initialize()
 
-    def initialize(self):
-        if not self.listen(QtNetwork.QHostAddress("127.0.0.1"), self.port):
-            QtGui.QMessageBox.critical(self, self.tr("Fortune Server"),
-                                       self.tr("Unable to start the server: %(error)s.")
-                                       % {'error': self.errorString()})
-            #closes the server in case of an error
-            self.close()
-            return
+        #initializes server info
+        self.name = "Bob"
+        self.key = "1234567891234567"#key
 
-        self.newConnection.connect(self.accept_connection)
-
-    def accept_connection(self):
-        """
-        Treats the event of receiving a client
-        """
-
-        print "Client received"
-        #gets the client socket info
-        self.thread = Thread(self, self.nextPendingConnection())
+        #initializes client info
+        self.thread = Thread(self, self.key)
         self.thread.start()
-
-
-    def server_send_message(self, msg):
-        """
-        Send passed message from the client to the server
-        """
-
-        self.msg_to_send.setText(msg)
-        self.request = QtCore.QByteArray()
-        stream = QtCore.QDataStream(self.request, QtCore.QIODevice.WriteOnly)
-        stream.setVersion(QtCore.QDataStream.Qt_4_2)
-        stream.writeUInt16(0)
-        stream.writeQString(self.msg_to_send.text())
-        stream.device().seek(0)
-        stream.writeUInt16(self.request.size() - SIZEOF_UINT16)
-        self.thread.client_connection.write(self.request)
-        self.nextBlockSize = 0
-        self.request = None
-        self.msg_to_send.setText("")
-
 
 
 class Thread(QtCore.QThread):
 
     #lock = QReadWriteLock()
 
-    def __init__(self, parent, client):
+    def __init__(self, parent, key):
         super(Thread, self).__init__(parent)
-        self.client_connection = client
-        self.textFromClient = ""
+        #gets TCP server info
+        self.parent = parent
+
+        #gets TCP server key
+        self.key = key
+
+        #initializes session key
+        self.session_key = None
+        self.session_started = False
 
 
     def run(self):
-        #while the client is connected, it listens to messages from the client
-        while self.client_connection.state()== QtNetwork.QAbstractSocket.ConnectedState:
-            nextBlockSize = 0
-            stream = QtCore.QDataStream(self.client_connection)
-            stream.setVersion( QtCore.QDataStream.Qt_4_2)
-            if (self.client_connection.waitForReadyRead(-1) and self.client_connection.bytesAvailable() >= SIZEOF_UINT16):
-                nextBlockSize = stream.readUInt16()
-            else:
-                self.sendError("Cannot read client request")
-                return
-            if self.client_connection.bytesAvailable() < nextBlockSize:
-                if (not self.client_connection.waitForReadyRead(-1) or
-                    self.client_connection.bytesAvailable() < nextBlockSize):
-                    self.sendError("Cannot read client data")
-                    return
+        host = 'localhost'
+        addr = (host, self.parent.port)
+        serversocket = socket(AF_INET, SOCK_STREAM)
+        serversocket.bind(addr)
+        serversocket.listen(2)
 
-            #reads the string from the client
-            self.textFromClient = stream.readQString()
-            print self.textFromClient
+        while 1:
+            print "Server is listening for connections\n"
+
+            clientsocket, clientaddr = serversocket.accept()
+            #thread.start_new_thread(self.handler, (clientsocket, clientaddr))
+            self.handler(clientsocket, clientaddr)
+        serversocket.close()
+
+    def handler(self, clientsocket, clientaddr):
+        print "Accepted connection from: ", clientaddr
+
+        while 1:
+            if self.session_started is False:
+                #Step 1: Receive authentication request
+                #Receive R1 , "Alice"
+                data = clientsocket.recv(1024)
+
+                #Step 2: Send challenge
+                # Send R2 + [E("Bob" , R1 , k)]
+                obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
+                r1 = data[:data.find(" , ")]
+                data = self.parent.name + " , " + r1 + " , "+self.parent.key
+                while len(data) % 16 != 0:
+                    data += " "
+                ciphertext = obj.encrypt(data)
+
+                #create r2
+                rndfile = Random.new()
+                r2 = str(rndfile.read(9))
+
+                #create msg R2 + [E("Bob" , R1 , k)]
+                msg = r2 + "[" + binascii.b2a_hex(ciphertext) + "]"
+                clientsocket.send(msg)
+                print "Challenge sent to client"
+
+                #Step 3: Receive challenge response
+                # Receive ["Alice" + R2, k]
+                data = clientsocket.recv(1024)
+                print "Challenge response received"
+                obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
+                decrypt_challenge = obj.decrypt(binascii.a2b_hex(data[data.find("[")+1:data.find("]")])).split(" , ")
+                r2_received = decrypt_challenge[1]
+
+                if r2_received == r2:
+                    print "R2 checked :", r2
+
+                #VPN established with success
+                self.session_started = True
+
+        clientsocket.close()

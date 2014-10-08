@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'VPN_UI.ui'
 #
-# Created: Tue Oct 07 17:46:39 2014
+# Created: Wed Oct 08 00:22:12 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(577, 573)
         self.widget = QtGui.QWidget(MainWindow)
-        self.widget.setGeometry(QtCore.QRect(11, 11, 563, 565))
+        self.widget.setGeometry(QtCore.QRect(12, 12, 563, 565))
         self.widget.setObjectName("widget")
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.widget)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -83,6 +83,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_8.addItem(spacerItem2)
+        self.aut_btn = QtGui.QPushButton(self.widget)
+        self.aut_btn.setMaximumSize(QtCore.QSize(16777215, 18))
+        self.aut_btn.setObjectName("aut_btn")
+        self.horizontalLayout_8.addWidget(self.aut_btn)
         self.secret_btn = QtGui.QPushButton(self.widget)
         self.secret_btn.setMaximumSize(QtCore.QSize(16777215, 18))
         self.secret_btn.setObjectName("secret_btn")
@@ -148,6 +152,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Server Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Shared Secret Value", None, QtGui.QApplication.UnicodeUTF8))
+        self.aut_btn.setText(QtGui.QApplication.translate("MainWindow", "Authenticate", None, QtGui.QApplication.UnicodeUTF8))
         self.secret_btn.setText(QtGui.QApplication.translate("MainWindow", "Set Secret", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Sent Data", None, QtGui.QApplication.UnicodeUTF8))
         self.write_btn.setText(QtGui.QApplication.translate("MainWindow", "Write", None, QtGui.QApplication.UnicodeUTF8))
