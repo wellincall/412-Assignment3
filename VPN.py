@@ -104,7 +104,14 @@ class MainWindow(QtGui.QMainWindow):
         send text written in the send text box
         """
 
-        self.tcpSocket.client_send_message(self.ui.sent_text.toPlainText())
+        if self.server_mode.isChecked():
+            self.tcpServer.server_send_message(self.ui.sent_text.toPlainText())
+
+        #if we are working as a client
+        if self.client_mode.isChecked():
+            self.tcpSocket.client_send_message(self.ui.sent_text.toPlainText())
+
+
         print "message sent"
 
     def read_text(self):
@@ -112,8 +119,15 @@ class MainWindow(QtGui.QMainWindow):
         send text written in the send text box
         """
 
-        print self.tcpServer.thread.textFromClient
-        self.ui.received_text.setText(self.tcpServer.thread.textFromClient)
+        if self.server_mode.isChecked():
+            self.ui.received_text.setText(self.tcpServer.thread.textFromClient)
+
+        #if we are working as a client
+        if self.client_mode.isChecked():
+            self.tcpSocket.read_from_server()
+            self.ui.received_text.setText(self.tcpSocket.textFromServer)
+
+
 
     def set_secret(self):
         """

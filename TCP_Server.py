@@ -12,6 +12,9 @@ class Server(QtNetwork.QTcpServer):
         QtNetwork.QTcpServer.__init__(self)
         self.port = port
         self.thread = None
+        #initializates the message to be send with a string written Ack
+        self.msg_to_send = QtGui.QLineEdit("Ack")
+        self.request = None
         self.initialize()
 
     def initialize(self):
@@ -34,6 +37,25 @@ class Server(QtNetwork.QTcpServer):
         #gets the client socket info
         self.thread = Thread(self, self.nextPendingConnection())
         self.thread.start()
+
+
+    def server_send_message(self, msg):
+        """
+        Send passed message from the client to the server
+        """
+
+        self.msg_to_send.setText(msg)
+        self.request = QtCore.QByteArray()
+        stream = QtCore.QDataStream(self.request, QtCore.QIODevice.WriteOnly)
+        stream.setVersion(QtCore.QDataStream.Qt_4_2)
+        stream.writeUInt16(0)
+        stream.writeQString(self.msg_to_send.text())
+        stream.device().seek(0)
+        stream.writeUInt16(self.request.size() - SIZEOF_UINT16)
+        self.thread.client_connection.write(self.request)
+        self.nextBlockSize = 0
+        self.request = None
+        self.msg_to_send.setText("")
 
 
 

@@ -13,6 +13,11 @@ class Client(QtNetwork.QTcpSocket):
         self.port = port
         self.host = host
         self.request = None
+        self.thread = None
+
+        self.nextBlockSize = 0
+        self.textFromServer = ""
+
 
         #initializates the message to be send with a string written Ack
         self.msg_to_send = QtGui.QLineEdit("Ack")
@@ -45,3 +50,21 @@ class Client(QtNetwork.QTcpSocket):
         self.nextBlockSize = 0
         self.request = None
         self.msg_to_send.setText("")
+
+    def read_from_server(self):
+        #gets the client socket info
+        # self.thread = Thread(self)
+        # self.thread.start()
+        stream = QtCore.QDataStream(self)
+        stream.setVersion(QtCore.QDataStream.Qt_4_2)
+        flag = True
+        #while the client is connected, it listens the server
+        while flag:
+            if self.nextBlockSize == 0:
+                if self.bytesAvailable() < SIZEOF_UINT16:
+                    break
+                self.nextBlockSize = stream.readUInt16()
+            if self.bytesAvailable() < self.nextBlockSize:
+                break
+            self.textFromServer = stream.readQString()
+            flag = False
