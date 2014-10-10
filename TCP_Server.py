@@ -8,6 +8,7 @@ import time
 import math
 import binascii
 import random
+import select
 
 SIZEOF_UINT16 = 2
 
@@ -63,6 +64,7 @@ class Thread(QtCore.QThread):
         self.g = 4
         self.b = 0
         self.p = 32
+
 
     def run(self):
         host = 'localhost'
@@ -133,10 +135,29 @@ class Thread(QtCore.QThread):
                     print "VPN not established"
             else:
                 if self.w_flag is True:
-                    clientsocket.send(self.msg_to_write)
-                    self.w_flag = False
+                    self.write(clientsocket)
                 elif self.r_flag is True:
-                    self.read_msg = clientsocket.recv(1024)
-                    self.r_flag = False
-                    self.parent.msg = self.read_msg
+                    self.read(clientsocket)
+
         clientsocket.close()
+
+    def write(self, clientsocket):
+        # print "Server writing"
+        clientsocket.send(self.msg_to_write)
+        self.w_flag = False
+        return
+
+
+    def read(self, clientsocket):
+
+        #set time-out if u do not have data to read
+        clientsocket.setblocking(0)
+        ready = select.select([clientsocket], [], [], 1)
+        if ready[0]:
+            self.read_msg = clientsocket.recv(1024)
+
+        # print "Server reading"
+        self.r_flag = False
+        self.parent.msg = self.read_msg
+        print self.read_msg
+        return

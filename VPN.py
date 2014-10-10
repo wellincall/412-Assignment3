@@ -44,9 +44,11 @@ class MainWindow(QtGui.QMainWindow):
         ### Signals
 
         #event triggered when start button is clicked
+        self.ui.start_btn.setEnabled(False)
         self.ui.start_btn.clicked.connect(self.start_vpn)
 
         #event triggered when stop button is clicked
+        self.ui.stop_btn.setEnabled(False)
         self.ui.stop_btn.clicked.connect(self.stop_vpn)
 
         #event triggered when TCP port value is changed
@@ -61,12 +63,11 @@ class MainWindow(QtGui.QMainWindow):
         #event triggered when the secret key is set
         self.ui.secret_btn.clicked.connect(self.set_secret)
 
-        # self.ui.aut_btn.clicked.connect(self.authenticate)
-        #
-        # self.timer = QtCore.QTimer(self)
-        # self.timer.timeout.connect(self.step1)
-        # self.timer2 = QtCore.QTimer(self)
-        # self.timer2.timeout.connect(self.step2)
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.read_text)
+
+        self.read_timer = 0
+
 
     ### Slots
     def start_vpn(self):
@@ -76,6 +77,8 @@ class MainWindow(QtGui.QMainWindow):
 
         #disable setting buttons
         self.ui.start_btn.setEnabled(False)
+        self.ui.stop_btn.setEnabled(True)
+
 
         #checks if the user ants to initialize a server or a client
         if self.client_mode.isChecked():
@@ -98,6 +101,9 @@ class MainWindow(QtGui.QMainWindow):
         """
         #enable the start button
         self.ui.start_btn.setEnabled(True)
+        self.ui.stop_btn.setEnabled(False)
+        self.ui.secret_btn.setEnabled(True)
+
 
         #if we are working as a server we close the server
         if self.server_mode.isChecked():
@@ -131,19 +137,32 @@ class MainWindow(QtGui.QMainWindow):
             self.tcpSocket.thread.w_flag = True
 
 
+
     def read_text(self):
         """
         send text written in the send text box
         """
 
+        if self.read_timer >= 2:
+            self.timer.stop()
+            self.read_timer = 0
+        else:
+            self.timer.start(1)
+
+
+        self.read_timer += 1
+
         if self.server_mode.isChecked():
+            self.ui.received_text.setText(self.tcpServer.thread.read_msg)
             self.tcpServer.thread.r_flag = True
             self.ui.received_text.setText(self.tcpServer.thread.read_msg)
 
         #if we are working as a client
         if self.client_mode.isChecked():
+            self.ui.received_text.setText(self.tcpSocket.thread.read_msg)
             self.tcpSocket.thread.r_flag = True
             self.ui.received_text.setText(self.tcpSocket.thread.read_msg)
+
 
     def set_secret(self):
         """
@@ -151,6 +170,10 @@ class MainWindow(QtGui.QMainWindow):
         """
 
         self.secret_key = self.ui.shared_text.toPlainText()
+        self.ui.secret_btn.setEnabled(False)
+        self.ui.start_btn.setEnabled(True)
+
+
 
 
 #script main function
