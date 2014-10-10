@@ -1,19 +1,17 @@
-#import basic pyside Desgin functions
+#import basic PySide design functions
 from PySide import QtCore, QtGui, QtNetwork
 #imports VPN ui class converted with pyside-uic
 from VPN_UI import Ui_MainWindow
 from TCP_Server import Server
 from TCP_Client import Client
-from Crypto.Cipher import AES
-from Crypto import Random
-import time
 import sys
-import binascii
+
 SIZEOF_UINT16 = 2
 
 #TCP functions at:
 #https://qt.gitorious.org/pyside/pyside-examples/source/b5c22fb55c33e1fe2b348e6ea379a3cb7df841e0:examples/network
 #http://stackoverflow.com/questions/9355511/pyqt-qtcpserver-how-to-return-data-to-multiple-clients
+
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -63,11 +61,13 @@ class MainWindow(QtGui.QMainWindow):
         #event triggered when the secret key is set
         self.ui.secret_btn.clicked.connect(self.set_secret)
 
+        #time_out trigger timer to 'rescue' data from thread
         self.timer = QtCore.QTimer(self)
+        #connects timeout with read function, this way updating the read box
         self.timer.timeout.connect(self.read_text)
 
+        #counter to see if we need to activate the timeout
         self.read_timer = 0
-
 
     ### Slots
     def start_vpn(self):
@@ -78,7 +78,6 @@ class MainWindow(QtGui.QMainWindow):
         #disable setting buttons
         self.ui.start_btn.setEnabled(False)
         self.ui.stop_btn.setEnabled(True)
-
 
         #checks if the user ants to initialize a server or a client
         if self.client_mode.isChecked():
@@ -92,27 +91,24 @@ class MainWindow(QtGui.QMainWindow):
             print "Server mode started"
             self.tcpServer = Server(self.port, self.secret_key)
 
-        # self.timer.start(1)
-
-
     def stop_vpn(self):
         """
         Stops the VPN server/client
         """
+
         #enable the start button
         self.ui.start_btn.setEnabled(True)
         self.ui.stop_btn.setEnabled(False)
         self.ui.secret_btn.setEnabled(True)
 
-
         #if we are working as a server we close the server
         if self.server_mode.isChecked():
-            self.tcpServer.close()
+            self.tcpServer.thread.stop()
             print "Server stopped"
 
         #if we are working as a client we close the connection
         if self.client_mode.isChecked():
-            self.tcpServer.thread.client_connection.close()
+            self.tcpSocket.thread.stop()
             print "Client disconnected"
 
     def refresh_port(self):
@@ -127,42 +123,42 @@ class MainWindow(QtGui.QMainWindow):
         send text written in the send text box
         """
 
+        #if server mode is selected
         if self.server_mode.isChecked():
             self.tcpServer.thread.msg_to_write = self.ui.sent_text.toPlainText()
             self.tcpServer.thread.w_flag = True
 
-        #if we are working as a client
+        #if client mode is selected
         if self.client_mode.isChecked():
             self.tcpSocket.thread.msg_to_write = self.ui.sent_text.toPlainText()
             self.tcpSocket.thread.w_flag = True
-
-
 
     def read_text(self):
         """
         send text written in the send text box
         """
 
+        #checks if we are read the info, if yes we stop the timer
         if self.read_timer >= 2:
             self.timer.stop()
             self.read_timer = 0
         else:
             self.timer.start(1)
 
-
+        #increments counter saying how many times we entered in this function
         self.read_timer += 1
 
+        #if we are in server mode
         if self.server_mode.isChecked():
             self.ui.received_text.setText(self.tcpServer.thread.read_msg)
             self.tcpServer.thread.r_flag = True
             self.ui.received_text.setText(self.tcpServer.thread.read_msg)
 
-        #if we are working as a client
+        #if we are in client mdoe
         if self.client_mode.isChecked():
             self.ui.received_text.setText(self.tcpSocket.thread.read_msg)
             self.tcpSocket.thread.r_flag = True
             self.ui.received_text.setText(self.tcpSocket.thread.read_msg)
-
 
     def set_secret(self):
         """
@@ -170,15 +166,21 @@ class MainWindow(QtGui.QMainWindow):
         """
 
         self.secret_key = self.ui.shared_text.toPlainText()
+
+        #enable start button and disable stop button
         self.ui.secret_btn.setEnabled(False)
         self.ui.start_btn.setEnabled(True)
 
-
-
-
-#script main function
+#script`s main function
 if __name__ == '__main__':
+    #starts Qt app
     app = QtGui.QApplication(sys.argv)
+
+    #constructs Qt interface main window
     window = MainWindow()
+
+    #show interface
     window.show()
+
+    #close app
     sys.exit(app.exec_())

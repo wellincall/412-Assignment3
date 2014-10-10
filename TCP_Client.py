@@ -64,7 +64,6 @@ class Thread(QtCore.QThread):
 
     def run(self):
         host = 'localhost'
-        port = 55567
         buf = 1024
 
         addr = (host, self.parent.port)
@@ -96,16 +95,18 @@ class Thread(QtCore.QThread):
                     #checks if the random variable r1 received is the same as the sent
                     if r1_received == r1:
                         print "R1 checked :", r1
+                    else:
+                        print "Wrong R1"
+                        break
 
                     r2 = data[:data.find("[")]
-
 
                     # Step 3: Send challenge response
                     # Send ["Alice" , R2 , g^a mod p , k]
                     obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
-                    self.a =  random.randint(0, 4)
+                    self.a = random.randint(0, 4)
                     mod = math.pow(self.g, self.a) % self.p
-                    msg = self.parent.name + " , " + r2 + " , " + str(mod) + " , " +self.parent.key
+                    msg = self.parent.name + " , " + r2 + " , " + str(mod) + " , " + self.parent.key
                     while len(msg) % 16 != 0:
                         msg += " "
                     ciphertext = obj.encrypt(msg)
@@ -130,23 +131,21 @@ class Thread(QtCore.QThread):
 
         clientsocket.close()
 
-    def write(self, clientsocket):
+    def write(self, client_socket):
         # print "Client writing"
-        clientsocket.send(self.msg_to_write)
+        client_socket.send(self.msg_to_write)
         self.w_flag = False
         return
 
-    def read(self,clientsocket):
+    def read(self, client_socket):
 
         #set time-out if u do not have data to read
-        clientsocket.setblocking(0)
-        ready = select.select([clientsocket], [], [], 1)
+        client_socket.setblocking(0)
+        ready = select.select([client_socket], [], [], 1)
         if ready[0]:
-            self.read_msg = clientsocket.recv(1024)
+            self.read_msg = client_socket.recv(1024)
 
         # print "Client reading"
-        self.read_msg = clientsocket.recv(1024)
         self.r_flag = False
         self.parent.msg = self.read_msg
-        print self.read_msg
         return

@@ -3,8 +3,6 @@ from PySide import QtCore, QtGui, QtNetwork
 from Crypto.Cipher import AES
 from Crypto import Random
 from socket import *
-import thread
-import time
 import math
 import binascii
 import random
@@ -65,7 +63,6 @@ class Thread(QtCore.QThread):
         self.b = 0
         self.p = 32
 
-
     def run(self):
         host = 'localhost'
         addr = (host, self.parent.port)
@@ -97,7 +94,7 @@ class Thread(QtCore.QThread):
                     r1 = data[:data.find(" , ")]
                     self.b = random.randint(0, 4)
                     mod = math.pow(self.g, self.b) % self.p
-                    data = self.parent.name + " , " + r1+ " , " + str(mod) + " , " +self.parent.key
+                    data = self.parent.name + " , " + r1 + " , " + str(mod) + " , " + self.parent.key
                     while len(data) % 16 != 0:
                         data += " "
                     ciphertext = obj.encrypt(data)
@@ -123,6 +120,9 @@ class Thread(QtCore.QThread):
                     #checks if the random variable r2 received is the same as the sent
                     if r2_received == r2:
                         print "R2 checked :", r2
+                    else:
+                        print "Wrong R2"
+                        break
 
                     #generate session_key
                     self.session_key = math.pow(float(mod_received), self.b) % self.p
@@ -141,23 +141,21 @@ class Thread(QtCore.QThread):
 
         clientsocket.close()
 
-    def write(self, clientsocket):
+    def write(self, client_socket):
         # print "Server writing"
-        clientsocket.send(self.msg_to_write)
+        client_socket.send(self.msg_to_write)
         self.w_flag = False
         return
 
-
-    def read(self, clientsocket):
+    def read(self, client_socket):
 
         #set time-out if u do not have data to read
-        clientsocket.setblocking(0)
-        ready = select.select([clientsocket], [], [], 1)
+        client_socket.setblocking(0)
+        ready = select.select([client_socket], [], [], 1)
         if ready[0]:
-            self.read_msg = clientsocket.recv(1024)
+            self.read_msg = client_socket.recv(1024)
 
         # print "Server reading"
         self.r_flag = False
         self.parent.msg = self.read_msg
-        print self.read_msg
         return
