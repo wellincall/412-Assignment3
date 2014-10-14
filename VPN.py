@@ -84,12 +84,12 @@ class MainWindow(QtGui.QMainWindow):
             #connects to the server
             print "Client mode started"
             #self.TCP_client()
-            self.tcpSocket = Client("Localhost", self.port, self.secret_key)
+            self.tcpSocket = Client(self.ui.ip_lbl.toPlainText(), self.port, str(self.secret_key))
 
         elif self.server_mode.isChecked():
             #starts a  server and listen to clients
             print "Server mode started"
-            self.tcpServer = Server(self.port, self.secret_key)
+            self.tcpServer = Server(self.port, str(self.secret_key))
 
     def stop_vpn(self):
         """
@@ -103,12 +103,18 @@ class MainWindow(QtGui.QMainWindow):
 
         #if we are working as a server we close the server
         if self.server_mode.isChecked():
-            self.tcpServer.thread.stop()
+            try:
+                self.tcpServer.thread.terminated()
+            except:
+                pass
             print "Server stopped"
 
         #if we are working as a client we close the connection
         if self.client_mode.isChecked():
-            self.tcpSocket.thread.stop()
+            try:
+                self.tcpSocket.thread.terminated()
+            except:
+                pass
             print "Client disconnected"
 
     def refresh_port(self):
@@ -167,9 +173,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self.secret_key = self.ui.shared_text.toPlainText()
 
-        #enable start button and disable stop button
-        self.ui.secret_btn.setEnabled(False)
-        self.ui.start_btn.setEnabled(True)
+        #checks if the key has the correct length, if not does not enable start button
+        if len(str(self.secret_key )) == 16:
+            #enable start button and disable stop button
+            self.ui.secret_btn.setEnabled(False)
+            self.ui.start_btn.setEnabled(True)
 
 #script`s main function
 if __name__ == '__main__':

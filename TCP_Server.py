@@ -25,7 +25,7 @@ class Server(QtNetwork.QTcpServer):
 
         #initializes server info
         self.name = "Bob"
-        self.key = "1234567891234567"#key
+        self.key = key# "1234567891234567"
 
         self.msg = ""
 
@@ -84,48 +84,78 @@ class Thread(QtCore.QThread):
         while 1:
             if self.session_started is False:
                 try:
+                    clientsocket.setblocking(0)
+
                     #Step 1: Receive authentication request
                     #Receive R1 , "Alice"
-                    data = clientsocket.recv(1024)
+                    try:
+                        ready = select.select([clientsocket], [], [], 3)
+                        if ready[0]:
+                            data = clientsocket.recv(1024)
+                    except:
+                        print "First step on Server Side gone wrong"
+                        print "VPN not established"
+                        return
 
                     #Step 2: Send challenge
                     # Send R2 + [E("Bob" , R1 , g^b mod p , k)]
-                    obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
-                    r1 = data[:data.find(" , ")]
-                    self.b = random.randint(0, 4)
-                    mod = math.pow(self.g, self.b) % self.p
-                    data = self.parent.name + " , " + r1 + " , " + str(mod) + " , " + self.parent.key
-                    while len(data) % 16 != 0:
-                        data += " "
-                    ciphertext = obj.encrypt(data)
+                    try:
+                        print "key: ", self.parent.key
+                        obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
+                        print "obj ", obj
+                        r1 = data[:data.find(" , ")]
+                        self.b = random.randint(0, 4)
+                        mod = math.pow(self.g, self.b) % self.p
+                        data = self.parent.name + " , " + r1 + " , " + str(mod) + " , " + self.parent.key
+                        while len(data) % 16 != 0:
+                            data += " "
+                        ciphertext = obj.encrypt(data)
 
-                    #create r2
-                    rndfile = Random.new()
-                    r2 = str(rndfile.read(9))
+                        #create r2
+                        rndfile = Random.new()
+                        r2 = str(rndfile.read(9))
 
-                    #create msg R2 + [E("Bob" , R1 , g^b mod p , k)]
-                    msg = r2 + "[" + binascii.b2a_hex(ciphertext) + "]"
-                    clientsocket.send(msg)
-                    print "Challenge sent to client"
+                        #create msg R2 + [E("Bob" , R1 , g^b mod p , k)]
+                        msg = r2 + "[" + binascii.b2a_hex(ciphertext) + "]"
+                        clientsocket.send(msg)
+                        print "Challenge sent to client"
+                    except:
+                        print "Second step on Server Side gone wrong"
+                        print "VPN not established"
+                        return
 
                     #Step 3: Receive challenge response
                     # Receive ["Alice" , R2 , g^a mod p , k]
-                    data = clientsocket.recv(1024)
-                    print "Challenge response received"
-                    obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
-                    decrypt_challenge = obj.decrypt(binascii.a2b_hex(data[data.find("[")+1:data.find("]")])).split(" , ")
-                    r2_received = decrypt_challenge[1]
-                    mod_received = decrypt_challenge[2]
+                    try:
+                        ready = select.select([clientsocket], [], [], 3)
+                        if ready[0]:
+                            data = clientsocket.recv(1024)
+                        print "Challenge response received"
+                        obj = AES.new(self.parent.key, AES.MODE_CBC, 'This is an IV456')
 
-                    #checks if the random variable r2 received is the same as the sent
-                    if r2_received == r2:
-                        print "R2 checked :", r2
-                    else:
-                        print "Wrong R2"
-                        break
+                        try:
+                            decrypt_challenge = obj.decrypt(binascii.a2b_hex(data[data.find("[")+1:data.find("]")])).split(" , ")
+                            #print decrypt_challenge
+                            r2_received = decrypt_challenge[1]
+                            mod_received = decrypt_challenge[2]
+                        except:
+                            print "Socket Sync fail, restart the app plz"
+                            return
 
-                    #generate session_key
-                    self.session_key = math.pow(float(mod_received), self.b) % self.p
+                        #checks if the random variable r2 received is the same as the sent
+                        if r2_received == r2:
+                            print "R2 checked :", r2
+                        else:
+                            print "Wrong R2"
+                            print "VPN not established"
+                            return
+
+                        #generate session_key
+                        self.session_key = math.pow(float(mod_received), self.b) % self.p
+                    except:
+                        print "Third step on Server Side gone wrong"
+                        print "VPN not established"
+                        return
 
                     #VPN established with success
                     self.session_started = True
@@ -133,6 +163,7 @@ class Thread(QtCore.QThread):
                     print "VPN established, session key: ", self.session_key
                 except:
                     print "VPN not established"
+                    return
             else:
                 if self.w_flag is True:
                     self.write(clientsocket)

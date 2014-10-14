@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'VPN_UI.ui'
 #
-# Created: Wed Oct 08 00:22:12 2014
+# Created: Mon Oct 13 18:19:21 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,9 +12,9 @@ from PySide import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(577, 573)
+        MainWindow.resize(597, 560)
         self.widget = QtGui.QWidget(MainWindow)
-        self.widget.setGeometry(QtCore.QRect(12, 12, 563, 565))
+        self.widget.setGeometry(QtCore.QRect(14, 12, 571, 531))
         self.widget.setObjectName("widget")
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.widget)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -83,10 +83,19 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_8.addItem(spacerItem2)
-        self.aut_btn = QtGui.QPushButton(self.widget)
-        self.aut_btn.setMaximumSize(QtCore.QSize(16777215, 18))
-        self.aut_btn.setObjectName("aut_btn")
-        self.horizontalLayout_8.addWidget(self.aut_btn)
+        self.label_9 = QtGui.QLabel(self.widget)
+        self.label_9.setObjectName("label_9")
+        self.horizontalLayout_8.addWidget(self.label_9)
+        self.ip_lbl = QtGui.QTextEdit(self.widget)
+        self.ip_lbl.setMinimumSize(QtCore.QSize(90, 20))
+        self.ip_lbl.setMaximumSize(QtCore.QSize(90, 20))
+        self.ip_lbl.setObjectName("ip_lbl")
+        self.horizontalLayout_8.addWidget(self.ip_lbl)
+        self.label_8 = QtGui.QLabel(self.widget)
+        self.label_8.setMinimumSize(QtCore.QSize(150, 0))
+        self.label_8.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.label_8.setObjectName("label_8")
+        self.horizontalLayout_8.addWidget(self.label_8)
         self.secret_btn = QtGui.QPushButton(self.widget)
         self.secret_btn.setMaximumSize(QtCore.QSize(16777215, 18))
         self.secret_btn.setObjectName("secret_btn")
@@ -119,8 +128,8 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
         self.verticalLayout_5.addWidget(self.label_7)
         self.received_text = QtGui.QTextEdit(self.widget)
-        self.received_text.setMinimumSize(QtCore.QSize(559, 157))
-        self.received_text.setMaximumSize(QtCore.QSize(559, 157))
+        self.received_text.setMinimumSize(QtCore.QSize(559, 100))
+        self.received_text.setMaximumSize(QtCore.QSize(559, 100))
         self.received_text.setObjectName("received_text")
         self.verticalLayout_5.addWidget(self.received_text)
         self.verticalLayout_6.addLayout(self.verticalLayout_5)
@@ -152,7 +161,13 @@ class Ui_MainWindow(object):
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Server Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Shared Secret Value", None, QtGui.QApplication.UnicodeUTF8))
-        self.aut_btn.setText(QtGui.QApplication.translate("MainWindow", "Authenticate", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(QtGui.QApplication.translate("MainWindow", "IP", None, QtGui.QApplication.UnicodeUTF8))
+        self.ip_lbl.setHtml(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">127.0.0.1</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("MainWindow", "16 caracteres Secret Value", None, QtGui.QApplication.UnicodeUTF8))
         self.secret_btn.setText(QtGui.QApplication.translate("MainWindow", "Set Secret", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Sent Data", None, QtGui.QApplication.UnicodeUTF8))
         self.write_btn.setText(QtGui.QApplication.translate("MainWindow", "Write", None, QtGui.QApplication.UnicodeUTF8))
